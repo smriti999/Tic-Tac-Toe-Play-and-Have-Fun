@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +37,36 @@ class MainActivity : ComponentActivity() {
                 var mode by remember { mutableStateOf(GameMode.PlayerVsPlayer) }
                 var boardSession by remember { mutableStateOf(0) }
                 var resultWinner by remember { mutableStateOf<String?>(null) }
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        val title = when (current) {
+                            AppScreen.Home -> "Tic Tac Toe"
+                            AppScreen.GameMode -> "Select Mode"
+                            AppScreen.Board -> "Game Board"
+                            AppScreen.HowToPlay -> "How to Play"
+                            AppScreen.Result -> "Result"
+                        }
+                        CenterAlignedTopAppBar(
+                            title = { Text(title) },
+                            navigationIcon = {
+                                if (current != AppScreen.Home) {
+                                    TextButton(onClick = {
+                                        current = when (current) {
+                                            AppScreen.GameMode -> AppScreen.Home
+                                            AppScreen.Board -> AppScreen.GameMode
+                                            AppScreen.HowToPlay -> AppScreen.Home
+                                            AppScreen.Result -> AppScreen.Home
+                                            else -> AppScreen.Home
+                                        }
+                                    }) {
+                                        Text("Back")
+                                    }
+                                }
+                            }
+                        )
+                    }
+                ) { innerPadding ->
                     when (current) {
                         AppScreen.Home -> HomeScreen(
                             modifier = Modifier.padding(innerPadding),

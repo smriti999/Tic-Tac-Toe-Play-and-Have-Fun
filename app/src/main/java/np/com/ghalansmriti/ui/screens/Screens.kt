@@ -49,6 +49,15 @@ private fun computeWinner(board: List<String>): String? {
     return null
 }
 
+private fun winningLine(board: List<String>): List<Int>? {
+    for (line in winLines) {
+        val (a, b, c) = line
+        val v = board[a]
+        if (v.isNotEmpty() && v == board[b] && v == board[c]) return line
+    }
+    return null
+}
+
 @Composable
 fun GameBoardScreen(
     mode: GameMode,
@@ -62,6 +71,7 @@ fun GameBoardScreen(
     var current by remember(restartToken) { mutableStateOf("X") }
     var winner by remember(restartToken) { mutableStateOf<String?>(null) }
     var isDraw by remember(restartToken) { mutableStateOf(false) }
+    var winCells by remember(restartToken) { mutableStateOf<List<Int>?>(null) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -89,16 +99,22 @@ fun GameBoardScreen(
         ) {
             repeat(3) { r ->
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     repeat(3) { c ->
                         val idx = r * 3 + c
+                        val highlight = winCells?.contains(idx) == true
                         Box(
                             modifier = Modifier
-                                .size(88.dp)
+                                .weight(1f)
+                                .aspectRatio(1f)
                                 .border(
-                                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                                    BorderStroke(
+                                        if (highlight) 3.dp else 2.dp,
+                                        if (highlight) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                                    ),
                                     RoundedCornerShape(10.dp)
                                 )
                                 .background(MaterialTheme.colorScheme.surface)
@@ -111,6 +127,7 @@ fun GameBoardScreen(
                                         val w = computeWinner(next)
                                         if (w != null) {
                                             winner = w
+                                            winCells = winningLine(next)
                                             onFinished(w)
                                         } else if (next.none { it.isEmpty() }) {
                                             isDraw = true
@@ -148,6 +165,7 @@ fun GameBoardScreen(
                 current = "X"
                 winner = null
                 isDraw = false
+                winCells = null
             }, modifier = Modifier.testTag("restart_btn")) { Text("Restart") }
         }
     }
@@ -173,9 +191,22 @@ fun ResultScreen(
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.testTag("result_message")
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = onPlayAgain, modifier = Modifier.testTag("play_again_btn")) { Text("Play Again") }
-            OutlinedButton(onClick = onHome, modifier = Modifier.testTag("home_btn_result")) { Text("Home") }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Button(
+                onClick = onPlayAgain,
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag("play_again_btn")
+            ) { Text("Play Again") }
+            OutlinedButton(
+                onClick = onHome,
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag("home_btn_result")
+            ) { Text("Home") }
         }
     }
 }
@@ -224,9 +255,20 @@ fun GameModeScreen(
                 Text("Player vs Computer")
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = onStart, modifier = Modifier.testTag("start_btn")) { Text("Start") }
-            OutlinedButton(onClick = onBack) { Text("Back") }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Button(
+                onClick = onStart,
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag("start_btn")
+            ) { Text("Start") }
+            OutlinedButton(
+                onClick = onBack,
+                modifier = Modifier.weight(1f)
+            ) { Text("Back") }
         }
     }
 }
