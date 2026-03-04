@@ -20,9 +20,10 @@ import np.com.ghalansmriti.ui.screens.GameMode
 import np.com.ghalansmriti.ui.screens.GameModeScreen
 import np.com.ghalansmriti.ui.screens.HomeScreen
 import np.com.ghalansmriti.ui.screens.HowToPlayWireframe
+import np.com.ghalansmriti.ui.screens.ResultScreen
 import np.com.ghalansmriti.ui.theme.TicTacToeTheme
  
-enum class AppScreen { Home, GameMode, Board, HowToPlay }
+enum class AppScreen { Home, GameMode, Board, HowToPlay, Result }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
             TicTacToeTheme {
                 var current by remember { mutableStateOf(AppScreen.Home) }
                 var mode by remember { mutableStateOf(GameMode.PlayerVsPlayer) }
+                var resultWinner by remember { mutableStateOf<String?>(null) }
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     when (current) {
                         AppScreen.Home -> HomeScreen(
@@ -43,16 +45,29 @@ class MainActivity : ComponentActivity() {
                         AppScreen.GameMode -> GameModeScreen(
                             selected = mode,
                             onSelect = { mode = it },
-                            onStart = { current = AppScreen.Board },
+                            onStart = { 
+                                resultWinner = null
+                                current = AppScreen.Board 
+                            },
                             onBack = { current = AppScreen.Home },
                             modifier = Modifier.padding(innerPadding)
                         )
                         AppScreen.Board -> GameBoardScreen(
                             modifier = Modifier.padding(innerPadding),
                             mode = mode,
-                            onHome = { current = AppScreen.Home }
+                            onHome = { current = AppScreen.Home },
+                            onFinished = { w ->
+                                resultWinner = w
+                                current = AppScreen.Result
+                            }
                         )
                         AppScreen.HowToPlay -> HowToPlayWireframe(
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                        AppScreen.Result -> ResultScreen(
+                            winner = resultWinner,
+                            onPlayAgain = { current = AppScreen.Board },
+                            onHome = { current = AppScreen.Home },
                             modifier = Modifier.padding(innerPadding)
                         )
                     }

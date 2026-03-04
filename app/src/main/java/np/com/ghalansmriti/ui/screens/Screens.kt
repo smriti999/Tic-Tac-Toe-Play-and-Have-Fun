@@ -28,14 +28,37 @@ import np.com.ghalansmriti.ui.theme.TicTacToeTheme
  
 enum class GameMode { PlayerVsPlayer, PlayerVsComputer }
 
+private val winLines = listOf(
+    listOf(0, 1, 2),
+    listOf(3, 4, 5),
+    listOf(6, 7, 8),
+    listOf(0, 3, 6),
+    listOf(1, 4, 7),
+    listOf(2, 5, 8),
+    listOf(0, 4, 8),
+    listOf(2, 4, 6)
+)
+
+private fun computeWinner(board: List<String>): String? {
+    for (line in winLines) {
+        val (a, b, c) = line
+        val v = board[a]
+        if (v.isNotEmpty() && v == board[b] && v == board[c]) return v
+    }
+    return null
+}
+
 @Composable
 fun GameBoardScreen(
     mode: GameMode,
     onHome: () -> Unit,
+    onFinished: (String?) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var board by remember { mutableStateOf(List(9) { "" }) }
     var current by remember { mutableStateOf("X") }
+    var winner by remember { mutableStateOf<String?>(null) }
+    var isDraw by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -76,12 +99,21 @@ fun GameBoardScreen(
                                     RoundedCornerShape(10.dp)
                                 )
                                 .background(MaterialTheme.colorScheme.surface)
-                                .clickable {
-                                    if (board[idx].isEmpty()) {
+                                .clickable(enabled = winner == null && !isDraw) {
+                                    if (board[idx].isEmpty() && winner == null && !isDraw) {
                                         val next = board.toMutableList()
                                         next[idx] = current
                                         board = next
-                                        current = if (current == "X") "O" else "X"
+                                        val w = computeWinner(next)
+                                        if (w != null) {
+                                            winner = w
+                                            onFinished(w)
+                                        } else if (next.none { it.isEmpty() }) {
+                                            isDraw = true
+                                            onFinished(null)
+                                        } else {
+                                            current = if (current == "X") "O" else "X"
+                                        }
                                     }
                                 },
                             contentAlignment = Alignment.Center
@@ -95,12 +127,48 @@ fun GameBoardScreen(
                 }
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (winner != null || isDraw) {
+            val message = winner?.let { "Winner: Player $it" } ?: "It's a draw"
+            Text(
+                text = message,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             OutlinedButton(onClick = onHome) { Text("Home") }
             Button(onClick = {
                 board = List(9) { "" }
                 current = "X"
+                winner = null
+                isDraw = false
             }) { Text("Restart") }
+        }
+    }
+}
+
+@Composable
+fun ResultScreen(
+    winner: String?,
+    onPlayAgain: () -> Unit,
+    onHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = winner?.let { "Winner: Player $it" } ?: "It's a Draw",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(onClick = onPlayAgain) { Text("Play Again") }
+            OutlinedButton(onClick = onHome) { Text("Home") }
         }
     }
 }
@@ -408,6 +476,18 @@ private fun GameBoardScreenPreview() {
     TicTacToeTheme {
         GameBoardScreen(
             mode = GameMode.PlayerVsPlayer,
+            onHome = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ResultScreenPreview() {
+    TicTacToeTheme {
+        ResultScreen(
+            winner = "X",
+            onPlayAgain = {},
             onHome = {}
         )
     }
