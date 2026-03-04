@@ -53,12 +53,13 @@ fun GameBoardScreen(
     mode: GameMode,
     onHome: () -> Unit,
     onFinished: (String?) -> Unit = {},
+    restartToken: Int = 0,
     modifier: Modifier = Modifier
 ) {
-    var board by remember { mutableStateOf(List(9) { "" }) }
-    var current by remember { mutableStateOf("X") }
-    var winner by remember { mutableStateOf<String?>(null) }
-    var isDraw by remember { mutableStateOf(false) }
+    var board by remember(restartToken) { mutableStateOf(List(9) { "" }) }
+    var current by remember(restartToken) { mutableStateOf("X") }
+    var winner by remember(restartToken) { mutableStateOf<String?>(null) }
+    var isDraw by remember(restartToken) { mutableStateOf(false) }
     Column(
         modifier = modifier
             .fillMaxSize()

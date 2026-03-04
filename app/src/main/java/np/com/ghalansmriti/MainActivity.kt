@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
             TicTacToeTheme {
                 var current by remember { mutableStateOf(AppScreen.Home) }
                 var mode by remember { mutableStateOf(GameMode.PlayerVsPlayer) }
+                var boardSession by remember { mutableStateOf(0) }
                 var resultWinner by remember { mutableStateOf<String?>(null) }
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     when (current) {
@@ -47,6 +48,7 @@ class MainActivity : ComponentActivity() {
                             onSelect = { mode = it },
                             onStart = { 
                                 resultWinner = null
+                                boardSession++
                                 current = AppScreen.Board 
                             },
                             onBack = { current = AppScreen.Home },
@@ -59,14 +61,18 @@ class MainActivity : ComponentActivity() {
                             onFinished = { w ->
                                 resultWinner = w
                                 current = AppScreen.Result
-                            }
+                            },
+                            restartToken = boardSession
                         )
                         AppScreen.HowToPlay -> HowToPlayWireframe(
                             modifier = Modifier.padding(innerPadding)
                         )
                         AppScreen.Result -> ResultScreen(
                             winner = resultWinner,
-                            onPlayAgain = { current = AppScreen.Board },
+                            onPlayAgain = { 
+                                boardSession++
+                                current = AppScreen.Board 
+                            },
                             onHome = { current = AppScreen.Home },
                             modifier = Modifier.padding(innerPadding)
                         )
