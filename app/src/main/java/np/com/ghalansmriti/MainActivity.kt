@@ -58,6 +58,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(innerPadding),
                             mode = mode,
                             onHome = { current = AppScreen.Home },
+                            onBack = { current = AppScreen.GameMode },
                             onFinished = { w ->
                                 resultWinner = w
                                 current = AppScreen.Result
@@ -65,7 +66,8 @@ class MainActivity : ComponentActivity() {
                             restartToken = boardSession
                         )
                         AppScreen.HowToPlay -> HowToPlayWireframe(
-                            modifier = Modifier.padding(innerPadding)
+                            modifier = Modifier.padding(innerPadding),
+                            onBack = { current = AppScreen.Home }
                         )
                         AppScreen.Result -> ResultScreen(
                             winner = resultWinner,

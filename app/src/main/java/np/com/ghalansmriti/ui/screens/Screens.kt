@@ -53,6 +53,7 @@ fun GameBoardScreen(
     mode: GameMode,
     onHome: () -> Unit,
     onFinished: (String?) -> Unit = {},
+    onBack: () -> Unit = {},
     restartToken: Int = 0,
     modifier: Modifier = Modifier
 ) {
@@ -137,6 +138,7 @@ fun GameBoardScreen(
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            OutlinedButton(onClick = onBack) { Text("Back") }
             OutlinedButton(onClick = onHome) { Text("Home") }
             Button(onClick = {
                 board = List(9) { "" }
@@ -396,7 +398,7 @@ fun ResultWireframe(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HowToPlayWireframe(modifier: Modifier = Modifier) {
+fun HowToPlayWireframe(modifier: Modifier = Modifier, onBack: () -> Unit = {}) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -415,7 +417,7 @@ fun HowToPlayWireframe(modifier: Modifier = Modifier) {
             Text("• If all boxes are filled, it is a draw")
         }
         OutlinedButton(
-            onClick = {},
+            onClick = onBack,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) { Text("Back") }
     }
@@ -477,7 +479,8 @@ private fun GameBoardScreenPreview() {
     TicTacToeTheme {
         GameBoardScreen(
             mode = GameMode.PlayerVsPlayer,
-            onHome = {}
+            onHome = {},
+            onBack = {}
         )
     }
 }
