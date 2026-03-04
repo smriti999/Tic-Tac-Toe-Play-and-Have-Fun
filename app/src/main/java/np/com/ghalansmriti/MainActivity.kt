@@ -15,7 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import np.com.ghalansmriti.ui.screens.GameBoardWireframe
+import np.com.ghalansmriti.ui.screens.GameBoardScreen
 import np.com.ghalansmriti.ui.screens.GameMode
 import np.com.ghalansmriti.ui.screens.GameModeScreen
 import np.com.ghalansmriti.ui.screens.HomeScreen
@@ -47,9 +47,10 @@ class MainActivity : ComponentActivity() {
                             onBack = { current = AppScreen.Home },
                             modifier = Modifier.padding(innerPadding)
                         )
-                        AppScreen.Board -> GameBoardWireframe(
+                        AppScreen.Board -> GameBoardScreen(
                             modifier = Modifier.padding(innerPadding),
-                            mode = mode
+                            mode = mode,
+                            onHome = { current = AppScreen.Home }
                         )
                         AppScreen.HowToPlay -> HowToPlayWireframe(
                             modifier = Modifier.padding(innerPadding)

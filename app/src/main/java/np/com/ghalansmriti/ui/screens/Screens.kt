@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Button
@@ -26,6 +27,83 @@ import androidx.compose.ui.unit.dp
 import np.com.ghalansmriti.ui.theme.TicTacToeTheme
  
 enum class GameMode { PlayerVsPlayer, PlayerVsComputer }
+
+@Composable
+fun GameBoardScreen(
+    mode: GameMode,
+    onHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var board by remember { mutableStateOf(List(9) { "" }) }
+    var current by remember { mutableStateOf("X") }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "Turn: Player $current",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = when (mode) {
+                    GameMode.PlayerVsPlayer -> "Mode: Player vs Player"
+                    GameMode.PlayerVsComputer -> "Mode: Player vs Computer"
+                },
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            repeat(3) { r ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    repeat(3) { c ->
+                        val idx = r * 3 + c
+                        Box(
+                            modifier = Modifier
+                                .size(88.dp)
+                                .border(
+                                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                                    RoundedCornerShape(10.dp)
+                                )
+                                .background(MaterialTheme.colorScheme.surface)
+                                .clickable {
+                                    if (board[idx].isEmpty()) {
+                                        val next = board.toMutableList()
+                                        next[idx] = current
+                                        board = next
+                                        current = if (current == "X") "O" else "X"
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = board[idx],
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedButton(onClick = onHome) { Text("Home") }
+            Button(onClick = {
+                board = List(9) { "" }
+                current = "X"
+            }) { Text("Restart") }
+        }
+    }
+}
 
 @Composable
 fun GameModeScreen(
@@ -320,6 +398,17 @@ private fun GameModeScreenPreview() {
             onSelect = { sel = it },
             onStart = {},
             onBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun GameBoardScreenPreview() {
+    TicTacToeTheme {
+        GameBoardScreen(
+            mode = GameMode.PlayerVsPlayer,
+            onHome = {}
         )
     }
 }
