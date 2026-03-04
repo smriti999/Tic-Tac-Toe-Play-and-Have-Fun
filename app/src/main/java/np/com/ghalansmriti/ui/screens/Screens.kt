@@ -58,6 +58,29 @@ private fun winningLine(board: List<String>): List<Int>? {
     return null
 }
 
+private fun computeBestMove(board: List<String>, ai: String, human: String): Int? {
+    val empties = board.withIndex().filter { it.value.isEmpty() }.map { it.index }
+    // 1) Can AI win now?
+    for (i in empties) {
+        val tmp = board.toMutableList()
+        tmp[i] = ai
+        if (computeWinner(tmp) == ai) return i
+    }
+    // 2) Block human winning move
+    for (i in empties) {
+        val tmp = board.toMutableList()
+        tmp[i] = human
+        if (computeWinner(tmp) == human) return i
+    }
+    // 3) Center
+    if (board[4].isEmpty()) return 4
+    // 4) Corners
+    for (i in listOf(0, 2, 6, 8)) if (board[i].isEmpty()) return i
+    // 5) Sides
+    for (i in listOf(1, 3, 5, 7)) if (board[i].isEmpty()) return i
+    return empties.firstOrNull()
+}
+
 @Composable
 fun GameBoardScreen(
     mode: GameMode,
@@ -119,7 +142,10 @@ fun GameBoardScreen(
                                 )
                                 .background(MaterialTheme.colorScheme.surface)
                                 .testTag("cell_$idx")
-                                .clickable(enabled = winner == null && !isDraw) {
+                                .clickable(
+                                    enabled = winner == null && !isDraw &&
+                                        (mode == GameMode.PlayerVsPlayer || current == "X")
+                                ) {
                                     if (board[idx].isEmpty() && winner == null && !isDraw) {
                                         val next = board.toMutableList()
                                         next[idx] = current
@@ -133,7 +159,29 @@ fun GameBoardScreen(
                                             isDraw = true
                                             onFinished(null)
                                         } else {
+                                            // Switch turn
                                             current = if (current == "X") "O" else "X"
+                                            // If PvC and it's computer's turn, make an immediate move
+                                            if (mode == GameMode.PlayerVsComputer && current == "O") {
+                                                val aiIdx = computeBestMove(next, ai = "O", human = "X")
+                                                if (aiIdx != null && next[aiIdx].isEmpty()) {
+                                                    next[aiIdx] = "O"
+                                                    board = next
+                                                    val w2 = computeWinner(next)
+                                                    if (w2 != null) {
+                                                        winner = w2
+                                                        winCells = winningLine(next)
+                                                        onFinished(w2)
+                                                    } else if (next.none { it.isEmpty() }) {
+                                                        isDraw = true
+                                                        onFinished(null)
+                                                    } else {
+                                                        current = "X"
+                                                    }
+                                                } else {
+                                                    current = "X"
+                                                }
+                                            }
                                         }
                                     }
                                 },
@@ -149,7 +197,7 @@ fun GameBoardScreen(
             }
         }
         if (winner != null || isDraw) {
-            val message = winner?.let { "Winner: Player $it" } ?: "It's a draw"
+            val message = winner?.let { "Winner: Player $it" } ?: "It's a Draw"
             Text(
                 text = message,
                 style = MaterialTheme.typography.titleLarge,
