@@ -5,12 +5,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +24,57 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import np.com.ghalansmriti.ui.theme.TicTacToeTheme
+ 
+enum class GameMode { PlayerVsPlayer, PlayerVsComputer }
+
+@Composable
+fun GameModeScreen(
+    selected: GameMode,
+    onSelect: (GameMode) -> Unit,
+    onStart: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Choose Game Mode",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                RadioButton(
+                    selected = selected == GameMode.PlayerVsPlayer,
+                    onClick = { onSelect(GameMode.PlayerVsPlayer) }
+                )
+                Text("Player vs Player")
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                RadioButton(
+                    selected = selected == GameMode.PlayerVsComputer,
+                    onClick = { onSelect(GameMode.PlayerVsComputer) }
+                )
+                Text("Player vs Computer")
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(onClick = onStart) { Text("Start") }
+            OutlinedButton(onClick = onBack) { Text("Back") }
+        }
+    }
+}
  
 @Composable
 fun HomeScreen(
@@ -116,7 +172,7 @@ fun GameModeWireframe(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun GameBoardWireframe(modifier: Modifier = Modifier) {
+fun GameBoardWireframe(modifier: Modifier = Modifier, mode: GameMode? = null) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -129,6 +185,15 @@ fun GameBoardWireframe(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Medium
         )
+        if (mode != null) {
+            Text(
+                text = when (mode) {
+                    GameMode.PlayerVsPlayer -> "Mode: Player vs Player"
+                    GameMode.PlayerVsComputer -> "Mode: Player vs Computer"
+                },
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -224,7 +289,7 @@ private fun GameModePreview() {
 @Preview(showBackground = true)
 @Composable
 private fun GameBoardPreview() {
-    TicTacToeTheme { GameBoardWireframe() }
+    TicTacToeTheme { GameBoardWireframe(mode = GameMode.PlayerVsPlayer) }
 }
 
 @Preview(showBackground = true)
@@ -243,5 +308,19 @@ private fun HowToPlayPreview() {
 @Composable
 private fun HomeScreenPreview() {
     TicTacToeTheme { HomeScreen() }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun GameModeScreenPreview() {
+    var sel by remember { mutableStateOf(GameMode.PlayerVsPlayer) }
+    TicTacToeTheme {
+        GameModeScreen(
+            selected = sel,
+            onSelect = { sel = it },
+            onStart = {},
+            onBack = {}
+        )
+    }
 }
 
