@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.testTag
 import np.com.ghalansmriti.ui.theme.TicTacToeTheme
  
 enum class GameMode { PlayerVsPlayer, PlayerVsComputer }
@@ -101,6 +102,7 @@ fun GameBoardScreen(
                                     RoundedCornerShape(10.dp)
                                 )
                                 .background(MaterialTheme.colorScheme.surface)
+                                .testTag("cell_$idx")
                                 .clickable(enabled = winner == null && !isDraw) {
                                     if (board[idx].isEmpty() && winner == null && !isDraw) {
                                         val next = board.toMutableList()
@@ -134,18 +136,19 @@ fun GameBoardScreen(
             Text(
                 text = message,
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.testTag("result_message")
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            OutlinedButton(onClick = onBack) { Text("Back") }
-            OutlinedButton(onClick = onHome) { Text("Home") }
+            OutlinedButton(onClick = onBack, modifier = Modifier.testTag("back_btn")) { Text("Back") }
+            OutlinedButton(onClick = onHome, modifier = Modifier.testTag("home_btn")) { Text("Home") }
             Button(onClick = {
                 board = List(9) { "" }
                 current = "X"
                 winner = null
                 isDraw = false
-            }) { Text("Restart") }
+            }, modifier = Modifier.testTag("restart_btn")) { Text("Restart") }
         }
     }
 }
@@ -167,11 +170,12 @@ fun ResultScreen(
         Text(
             text = winner?.let { "Winner: Player $it" } ?: "It's a Draw",
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.testTag("result_message")
         )
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = onPlayAgain) { Text("Play Again") }
-            OutlinedButton(onClick = onHome) { Text("Home") }
+            Button(onClick = onPlayAgain, modifier = Modifier.testTag("play_again_btn")) { Text("Play Again") }
+            OutlinedButton(onClick = onHome, modifier = Modifier.testTag("home_btn_result")) { Text("Home") }
         }
     }
 }
@@ -203,7 +207,8 @@ fun GameModeScreen(
             ) {
                 RadioButton(
                     selected = selected == GameMode.PlayerVsPlayer,
-                    onClick = { onSelect(GameMode.PlayerVsPlayer) }
+                    onClick = { onSelect(GameMode.PlayerVsPlayer) },
+                    modifier = Modifier.testTag("mode_pvp")
                 )
                 Text("Player vs Player")
             }
@@ -213,13 +218,14 @@ fun GameModeScreen(
             ) {
                 RadioButton(
                     selected = selected == GameMode.PlayerVsComputer,
-                    onClick = { onSelect(GameMode.PlayerVsComputer) }
+                    onClick = { onSelect(GameMode.PlayerVsComputer) },
+                    modifier = Modifier.testTag("mode_pvc")
                 )
                 Text("Player vs Computer")
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = onStart) { Text("Start") }
+            Button(onClick = onStart, modifier = Modifier.testTag("start_btn")) { Text("Start") }
             OutlinedButton(onClick = onBack) { Text("Back") }
         }
     }
@@ -259,9 +265,9 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Button(onClick = onPlay, modifier = Modifier.fillMaxWidth()) { Text("Play Game") }
-            OutlinedButton(onClick = onHowToPlay, modifier = Modifier.fillMaxWidth()) { Text("How to Play") }
-            TextButton(onClick = onExit) { Text("Exit") }
+            Button(onClick = onPlay, modifier = Modifier.fillMaxWidth().testTag("play_game_btn")) { Text("Play Game") }
+            OutlinedButton(onClick = onHowToPlay, modifier = Modifier.fillMaxWidth().testTag("how_to_play_btn")) { Text("How to Play") }
+            TextButton(onClick = onExit, modifier = Modifier.testTag("exit_btn")) { Text("Exit") }
         }
         Spacer(Modifier.height(16.dp))
     }
