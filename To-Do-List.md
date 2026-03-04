@@ -41,7 +41,7 @@ Tic Tac Toe – Play and Have Fun!! is a simple 3×3 grid game where players com
 
 ## To-Do List
 
-- [ ] Design wireframe for all pages
+- [x] Design wireframe for all pages
 - [ ] Create Home Page UI
 - [ ] Implement Game Mode selection
 - [ ] Build 3×3 Game Board logic
